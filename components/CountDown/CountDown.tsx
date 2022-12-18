@@ -5,8 +5,8 @@ interface Props{
     className:string
 }
 
-export default function CountDown(props: Props){    
-    
+export default function CountDown(props: Props){
+
     const countDown : CountdownRendererFn =({
         days,
         hours,

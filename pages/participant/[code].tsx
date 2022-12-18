@@ -5,8 +5,15 @@ import Button from "../../components/Button"
 import CandidateItem from "../../components/CandidateItem"
 import CountDown from "../../components/CountDown/CountDown"
 import Menu from "../../components/Menu"
+import { useSession } from "next-auth/react"
+import RestrictedPage from "../../components/page/RestrictedPage"
 
 export default function DetailVoting(){
+    const {data:session} = useSession()
+
+    if (!session) {
+        return <RestrictedPage/>
+    }
     const router = useRouter()
     const {code} = router.query
     return (
@@ -17,7 +24,7 @@ export default function DetailVoting(){
 
             <Menu/>
 
-            <div>   
+            <div>
                 <h1 className="text-4xl mt-10 text-center">judul voting</h1>
 
                 {/* timer */}
@@ -35,13 +42,13 @@ export default function DetailVoting(){
 
                 {/* Submit */}
                 <div className="text-center mt-10">
-                    <Button text="Kirim Vote Saya" 
+                    <Button text="Kirim Vote Saya"
                     onClick={()=> showAlert({
                         title:"Kamu Yakin?",
                         message:"Kamu memilih kandidat no 1",
                         positiveBtnText:"Ya",
                         onPositiveClick(){
-
+                            console.log('awaw')
                         }
                     })}/>
                 </div>

@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Form from "../../components/Form";
 import ReactDatePicker, {registerLocale} from "react-datepicker"
 import id from "date-fns/locale/id"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 registerLocale("id", id)
 import "react-datepicker/dist/react-datepicker.css"
 import CandidateForm from "../../components/CandidateForm";
@@ -14,9 +14,11 @@ import { useSession } from "next-auth/react"
 import RestrictedPage from "../../components/page/RestrictedPage";
 import { showAlert } from "../../components/Alert";
 import { useRouter } from "next/router";
+import useVote from "../../lib/useVote";
 
-export default function CreateVote(){
+export default function DetailOrEditVote(){
     const {data:session} = useSession()
+
     const [startDateTime, setStartDateTime] = useState(new Date())
     const [endDateTime, setEndDateTime] = useState(new Date())
     const [candidates, setCandidates]=useState<Candidate[]>([])
@@ -24,6 +26,18 @@ export default function CreateVote(){
     const [title, setTitle] = useState("")
     const router = useRouter()
 
+    const { code } = router.query
+    const { data:dataVoteApi,error }= useVote(code as string)
+
+    useEffect(()=>{
+        if (dataVoteApi && dataVoteApi.data) {
+            const d=dataVoteApi.data;
+            setTitle(d.title);
+            setStartDateTime(new Date(d.startDateTime));
+            setEndDateTime(new Date(d.endDateTime));
+            setCandidates(d.candidates);
+        }
+    },[dataVoteApi])
 
     const submitCandidate = (candidate:Candidate)=>{
         setCandidates(
@@ -31,7 +45,7 @@ export default function CreateVote(){
         )
     }
 
-    const createVote = (e:any) => {
+    const updateVote = (e:any) => {
         e.preventDefault()
         // validate
         if(title === ""){
@@ -53,8 +67,8 @@ export default function CreateVote(){
 
         setLoading(true);
 
-        fetch("/api/vote",{
-            method:"POST",
+        fetch("/api/vote/"+code as string,{
+            method:"PUT",
             headers:{
                 "Content-Type": "application/json"
             },
@@ -62,16 +76,16 @@ export default function CreateVote(){
                 title,
                 startDateTime,
                 endDateTime,
-                candidates,
-                publisher : session?.user?.email,
+                candidates
             })
         }).then((data)=>{
-            showAlert({title:"Yeayy!", message: "Voting berhasil dibuat"})
+            showAlert({title:"Yeayy!", message: "Voting berhasil diubah"})
             router.push("/")
         })
         .catch(()=>{
-            showAlert({title:"hmmzzz!", message: "Voting gagal dibuat"})
-        }).finally(()=>{
+            showAlert({title:"hmmzzz!", message: "Voting gagal diubah"})
+        })
+        .finally(()=>{
             setLoading(false)
         })
     }
@@ -115,7 +129,7 @@ export default function CreateVote(){
             <h1 className="text-4xl font-bold">Buat Voting Baru</h1>
             <h2 className="text-zinc-700 mt-3">Silahkan masukan data yang dibutuhkan sebelum vote online</h2>
 
-            <form className="flex flex-col" onSubmit={createVote}>
+            <form className="flex flex-col" onSubmit={updateVote}>
                 {/* detail vote  */}
                 <div className="space-y-5">
                     <div className="flex flex-col">
@@ -168,7 +182,7 @@ export default function CreateVote(){
                 {/* /Kandidat  */}
 
                 <div className="text-right mt-10">
-                    <Button text="Buat Voting" isLoading={loading}/>
+                    <Button text="Update Voting" isLoading={loading}/>
                 </div>
             </form>
         </div>

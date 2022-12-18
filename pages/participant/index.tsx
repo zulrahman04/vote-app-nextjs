@@ -4,8 +4,15 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import Button from "../../components/Button";
 import Form from "../../components/Form";
+import { useSession } from "next-auth/react"
+import RestrictedPage from "../../components/page/RestrictedPage"
 
 export default function Participant(){
+    const {data:session} = useSession()
+
+    if (!session) {
+        return <RestrictedPage/>
+    }
     const router = useRouter()
     const [code, setCode] = useState("")
 

@@ -5,10 +5,44 @@ import Button from '../components/Button'
 import Menu from '../components/Menu'
 import { LinkIcon, TrashIcon } from '@heroicons/react/24/solid'
 import { useRouter } from 'next/router'
+import { useSession } from 'next-auth/react'
+import useVotes from '../lib/useVotes'
+import { useEffect, useState } from 'react'
+import { votes } from "@prisma/client"
+import moment from 'moment'
+import { showAlert } from '../components/Alert'
+import { METHODS } from 'http'
 
 const Home: NextPage = () => {
 
   const router = useRouter()
+  const { data:session } = useSession()
+  const { data: dataVotesApi,error,isLoading } = useVotes()
+
+  const [votes,setVotes] = useState<votes[]>()
+
+  const handlerDelete = (code: string) => {
+    showAlert({
+      title: "Anda yakin?",
+      message: "Anda ingin menghapus data ini?",
+      onPositiveClick(){
+        fetch("/api/vote/"+code,{
+          method:"DELETE"
+        }).then(()=>{
+          showAlert({title:"Berhasil",message:"Data berhasil dihapus"});
+          setVotes(votes?.filter((vote)=>vote.code !== code))
+        }).catch(()=>{
+          showAlert({title:"Gagal",message:"Data gagal dihapus"});
+        })
+      }
+    })
+  }
+
+  useEffect(()=>{
+    if (dataVotesApi) {
+      setVotes(dataVotesApi.data)
+    }
+  },[dataVotesApi])
 
   return (
     <div className='container mx-auto'>
@@ -27,49 +61,58 @@ const Home: NextPage = () => {
         <Image alt={"Header"} src={"/assets/org.png"} width={274} height={243}/>
         <div className='space-x-10'>
           <Button text='Buat Vote Baru' className='font-bold' onClick={()=>router.push("/vote/create")}/>
-          <Button text='Ikutan Vote' type='secondary' className='font-bold' onClick={()=>router.push("/participant")}/>
+          <Button text='Ikutan Vote' type="secondary" className='font-bold' onClick={()=>router.push("/participant")}/>
         </div>
       </div>
       {/* /header */}
 
       {/* table */}
-        <div>
-          <p className='py-5 text-lg font-bold'>vote yang saya buat</p>
-          <table className='table-auto w-full border border-zinc-100'>
-            <thead>
-              <tr className='border-b border-zinc-100'>
-                <th className='p-5 text-left'>No</th>
-                <th className='p-5 text-left'>Judul</th>
-                <th className='p-5 text-left'>Kandidat</th>
-                <th className='p-5 text-left'>kode</th>
-                <th className='p-5 text-left'>Mulai</th>
-                <th className='p-5 text-left'>Selesai</th>
-                <th className='p-5 text-left'></th>
-              </tr>
-            </thead>
+      {session && (
+          <div className='mb-10'>
+            <p className='py-5 text-lg font-bold'>vote yang saya buat</p>
+            <table className='table-auto w-full border border-zinc-100'>
+              <thead>
+                <tr className='border-b border-zinc-100'>
+                  <th className='p-5 text-left'>No</th>
+                  <th className='p-5 text-left'>Judul</th>
+                  <th className='p-5 text-left'>Kandidat</th>
+                  <th className='p-5 text-left'>kode</th>
+                  <th className='p-5 text-left'>Mulai</th>
+                  <th className='p-5 text-left'>Selesai</th>
+                  <th className='p-5 text-left'></th>
+                </tr>
+              </thead>
 
-            <tbody>
-              <tr>
-                <td className='p-5 text-left'>1</td>
-                <td className='p-5 text-left'>Judul</td>
-                <td className='p-5 text-left'>Budi vs anton</td>
-                <td className='p-5 text-left'>BXSIDW</td>
-                <td className='p-5 text-left'>20 oct 2022 11:00</td>
-                <td className='p-5 text-left'>22 oct 2022 11:00</td>
-                <td className='p-5 text-left'>
-                  <div>
-                    <a href='#'>
-                      <LinkIcon className='w-8 h-8 p-2 hover:bg-zinc-100'/>
-                    </a>
-                    <a href='#'>
-                      <TrashIcon className='w-8 h-8 p-2 hover:bg-zinc-100'/>
-                    </a>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+              <tbody>
+                {votes && votes.length > 0 ? (
+                  votes.map((vote:votes, index:number)=>(
+                    <tr key={index}>
+                      <td className='p-5 text-left'>{index + 1}</td>
+                      <td className='p-5 text-left text-blue-500'>
+                        <a href={`/vote/${vote.code}`}>{vote.title}</a>
+                      </td>
+                      <td className='p-5 text-left'>{vote.candidates.map((c:Candidate, index:number)=>(
+                        <span key={index}>{c.name + (index < vote.candidates.length - 1 ? " vs " : "")}</span>
+                      ))}</td>
+                      <td className='p-5 text-left font-bold'>{vote.code}</td>
+                      <td className='p-5 text-left'>{moment(vote.startDateTime).format('DD MMM YYYY hh:mm a')}</td>
+                      <td className='p-5 text-left'>{moment(vote.endDateTime).format('DD MMM YYYY hh:mm a')}</td>
+                      <td className='p-5 text-left'>
+                        <div>
+                          <a href={`/participant/${vote.code}`}>
+                            <LinkIcon className='w-8 h-8 p-2 hover:bg-zinc-100'/>
+                          </a>
+                          <button onClick={()=>{handlerDelete(vote.code)}}>
+                            <TrashIcon className='w-8 h-8 p-2 hover:bg-zinc-100'/>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))) : "Belom ada vote yang di buat"}
+              </tbody>
+            </table>
+          </div>
+        )}
       {/* /table */}
     </div>
   )

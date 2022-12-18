@@ -22,8 +22,8 @@ export default function CandidateForm(props : Props){
     useEffect(()=>{
         props.submitCandidate(candidate)
     },[candidate])
-    
-    return (        
+
+    return (
         <div className="flex flex-col border border-zinc-100 p-5">
             <div className="self-end">
                 <XCircleIcon className="h-6 w-6 cursor-pointer hover:bg-zinc-100 text-zinc-300" onClick={()=> props.removeCandidateForm(candidate.key)}/>

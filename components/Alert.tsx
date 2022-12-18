@@ -48,7 +48,7 @@ function Alert(props:Props){
                                 <button className="text-sm bg-zinc-100 px-2 py-1 hover:bg-zinc-200" onClick={()=>{props.onNegativeClick; setIsOpen(false)}}>
                                     {props.negativeBtnText|| "Kembali"}
                                 </button>
-                                <Button className={`${!props.onPositiveClick && "hidden"}`} onClick={()=> {props.onPositiveClick && props.onPositiveClick; setIsOpen(false)}} text={props.positiveBtnText || "Ya"}/>
+                                <Button className={`${!props.onPositiveClick && "hidden"}`} onClick={()=> {props.onPositiveClick && props.onPositiveClick(); setIsOpen(false)}} text={props.positiveBtnText || "Ya"}/>
                             </div>
                         </div>
                         {/* /Content */}
