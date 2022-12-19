@@ -11,7 +11,6 @@ import { useEffect, useState } from 'react'
 import { votes } from "@prisma/client"
 import moment from 'moment'
 import { showAlert } from '../components/Alert'
-import { METHODS } from 'http'
 
 const Home: NextPage = () => {
 
