@@ -35,11 +35,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-
-# GOOGLE_ID=814032847440-4d27jrrigslgh01pecb1p49brua6qhgs.apps.googleusercontent.com
-# GOOGLE_SECRET=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
-# NEXTAUTH_URL=http://localhost:3000
-# NEXTAUTH_SECRET=kode_rahasia
-
-# DATABASE_URL="mongodb+srv://admin:mC0E5uJLiog5HQHc@pear-cluster.d4r7i7y.mongodb.net/test"
