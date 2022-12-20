@@ -11,10 +11,10 @@ interface Props{
 export default function CountDownRender(props : Props){
     return (
         <div className="flex flex-row mx-auto justify-center">
-            <CountDownItem label="Hari" value={props.days}/>
-            <CountDownItem label="Jam" value={props.hours}/>
-            <CountDownItem label="Menit" value={props.minutes}/>
-            <CountDownItem label="Detik" value={props.seconds}/>
+            { props.days > 0 && <CountDownItem label="Hari" value={props.days}/>}
+            { props.hours > 0 && <CountDownItem label="Jam" value={props.hours}/>}
+            { props.minutes > 0 && <CountDownItem label="Menit" value={props.minutes}/>}
+            { props.seconds > 0 && <CountDownItem label="Detik" value={props.seconds}/>}
         </div>
     )
 }

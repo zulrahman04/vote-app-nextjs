@@ -32,6 +32,6 @@ model participant{
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
   email         String
   candidates    String
-  code          String    @unique
+  code          String
   createdAt     DateTime  @default(now()) @map("createdAt") @db.Date
 }

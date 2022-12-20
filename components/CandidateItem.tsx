@@ -27,7 +27,7 @@ export default function CandidateItem(props:Props){
                     {/* /Bar */}
 
                     {/* Indicator */}
-                    <p className="text-sm font-bold">{props.percentage}</p>
+                    <p className="text-sm font-bold">{Intl.NumberFormat('en',{notation:"compact"}).format(props.percentage || 0 ) }%</p>
                     {/* /Indicator */}
                 </div>
             </div>

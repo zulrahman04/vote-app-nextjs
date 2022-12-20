@@ -10,6 +10,7 @@ import RestrictedPage from "../../components/page/RestrictedPage"
 import useVote from "../../lib/useVote"
 import { useEffect, useState } from "react"
 import moment from "moment"
+import useParticipant from "../../lib/useParticipant"
 
 export const STATE_NOT_STARTED = "STATE_NOTSTARTED",
             STATE_STARTED = "STATE_STARTED",
@@ -23,6 +24,7 @@ export default function DetailVoting(){
     const { data:dataVoteApi, mutate:mutateVoteApi } = useVote(code as string)
     const [currentState, setCurrentState] = useState()
     const [selectedCandidate, setSelectedCandidate]= useState<Candidate | null>(null)
+    const {data:dataParticipantApi, mutate:mutateDataParticipanApi} = useParticipant(code as string)
 
     const submitVote =async()=>{
         if (selectedCandidate) {
@@ -42,6 +44,7 @@ export default function DetailVoting(){
                     })
                     if (res.status === 200) {
                         mutateVoteApi()
+                        mutateDataParticipanApi()
                         showAlert({title:"Vote Terkirim",message:"Terimakasih sudah berpartisipasi"})
                     }
                 }
@@ -62,8 +65,8 @@ export default function DetailVoting(){
             }
         }
 
-        const start = moment(vote?.startDateTime)
-        const end = moment(vote?.endDateTime)
+        const start = moment(String(vote?.startDateTime))
+        const end = moment(String(vote?.endDateTime))
 
         const interval = setInterval(async()=>{
             const now = moment()
@@ -80,9 +83,21 @@ export default function DetailVoting(){
         return ()=>clearInterval(interval)
     },[dataVoteApi])
 
+    useEffect(()=>{
+        if (dataParticipantApi?.data && dataVoteApi?.data) {
+            const candidate = dataVoteApi?.data?.candidates?.find((c)=>
+                c.name === dataParticipantApi?.data?.candidates
+            )
+            if (candidate) {
+                setSelectedCandidate(candidate)
+            }
+        }
+    },[dataParticipantApi,dataVoteApi])
+
     if (!session) {
         return <RestrictedPage/>
     }
+
     return (
         <div className="container mx-auto">
             <Head>
@@ -111,22 +126,29 @@ export default function DetailVoting(){
                 <div className="mt-10 space-y-3 mx-auto w-2/3">
                     {dataVoteApi?.data?.candidates.map((candidate:Candidate,index:number)=>(
                         <CandidateItem 
-                            onClick={() => {currentState === STATE_STARTED && setSelectedCandidate(candidate)} }
+                            onClick={() => { !dataParticipantApi?.data &&
+                                currentState === STATE_STARTED && setSelectedCandidate(candidate)} }
                             isSelected={selectedCandidate?.name === candidate.name}
                             name={candidate.name}
-                            title={"Kandidat" + candidate.key}
-                            percentage={candidate.votes ? (candidate.votes / 1 * 100) : 0}
-                            key={candidate.key} index={0}/>
-                    ))}
+                            title={"Kandidat " + candidate.key}
+                            percentage={candidate.votes ? ( (dataVoteApi?.data?.totalVotes || 0)) * 100 : 0}
+                            key={candidate.key} index={index + 1}/>
+                            ))}
                 </div>
                 {/* /kandidat */}
 
                 {/* Submit */}
                 <div className="text-center mt-10">
-                    <Button text="Kirim Vote Saya"
-                    onClick={()=> {
-                        submitVote()
-                    }}/>
+                    {(session?.user?.email != dataVoteApi?.data?.publisher) && !dataParticipantApi?.data && currentState===STATE_STARTED && (
+                        <Button text="Kirim Vote Saya"
+                        onClick={()=> {
+                            submitVote()
+                        }}/>
+                    )}
+                    {dataParticipantApi?.data && <span className="bg-zinc-100 py-2 px-3">Kamu sudah memilih</span>}
+                    {session.user?.email === dataVoteApi?.data?.publisher && (
+                        <span className="bg-zinc-100 py-2 px-3">Pembuat Tidak boleh memilih</span>
+                    )}
                 </div>
                 {/* /Submit */}
             </div>
