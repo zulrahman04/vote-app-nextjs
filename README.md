@@ -1,4 +1,8 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## introduce
+aplkasi ini menggunakan nextjs, css taildwind dan vercel app dengan databse monggodb
+
+## penulis
+project ini merupakan pembelajaran studi kasus dari [Fahrezi Adha]([https://buku-laravel-vue.com/](https://www.udemy.com/course/belajar-membuat-website-voting-online-fullstack-nextjs/))
 
 ## Getting Started
 
