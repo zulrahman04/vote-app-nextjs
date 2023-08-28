@@ -1,5 +1,5 @@
 ## introduce
-aplkasi ini menggunakan nextjs, css taildwind dan vercel app dengan databse monggodb
+aplkasi ini menggunakan nextjs, tailwind css dengan databse monggodb
 
 ## penulis
 project ini merupakan pembelajaran studi kasus dari [Fahrezi Adha](https://www.udemy.com/course/belajar-membuat-website-voting-online-fullstack-nextjs/)
